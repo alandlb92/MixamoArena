@@ -26,4 +26,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
+	class USkeletalMesh* _skeletalMesh;
+	class USpringArmComponent* _springArm;
+	class UCameraComponent* _camera;
 };
