@@ -27,7 +27,13 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-	class USkeletalMesh* _skeletalMesh;
+	class UPlayerCharacterMovementComponent* _movementComponent;
+
+	UPROPERTY(EditAnywhere)
 	class USpringArmComponent* _springArm;
+	UPROPERTY(EditAnywhere)
 	class UCameraComponent* _camera;
+
+	void SetupGameplayInput();
+	void Test();
 };

@@ -13,5 +13,12 @@ UCLASS()
 class MIXAMOARENA_API UPlayerCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
-	
+
+private:
+	class UPlayerAnimInstance* _anim;
+
+public:
+	void Configure(UPlayerAnimInstance* anim);
+	void MoveHorizontal(float input);
+	void MoveVertical(float input);
 };
