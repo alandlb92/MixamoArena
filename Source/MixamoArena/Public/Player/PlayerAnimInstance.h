@@ -19,7 +19,10 @@ public:
 	float _horizontalInput;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
 	float _verticalInput;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
+	float _velocityScale;
 
 	UFUNCTION(BlueprintCallable)
-	bool IsMovingFoward();
+	bool IsMoving();
 };

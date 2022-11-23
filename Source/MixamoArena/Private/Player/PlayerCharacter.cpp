@@ -16,12 +16,18 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
+	bUseControllerRotationYaw = false;
+
 	_springArm = CreateAbstractDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	_springArm->SetupAttachment(RootComponent);
 	_springArm->TargetArmLength = 400.0f;
 	_springArm->bEnableCameraLag = true;
 	_springArm->CameraLagSpeed = 3.0f;
 	_springArm->SetRelativeLocation(FVector(0, 0, 100));
+
+	_springArm->bInheritPitch = false;
+	_springArm->bInheritYaw = false;
+	_springArm->bInheritRoll = false;
 
 	_camera = CreateAbstractDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	_camera->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
@@ -40,7 +46,6 @@ void APlayerCharacter::BeginPlay()
 
 	_movementComponent->Configure(Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance()));
 	SetupGameplayInput();
-
 }
 
 // Called every frame

@@ -7,15 +7,33 @@
 void UPlayerCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bOrientRotationToMovement = true;
 }
 
 void UPlayerCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	FVector2D input = _inputInfo.GetThumbstickLeft();
-	UE_LOG(LogTemp, Warning, TEXT("Input x: %f y: %f"), input.X, input.Y);
+
+	Move();
+	MoveAnimation();
+
 	_inputInfo.Clean();
-	UE_LOG(LogTemp, Warning, TEXT("CLEANED AWAYS 0, 0 Input x: %f y: %f"), input.X, input.Y);
+}
+
+void UPlayerCharacterMovementComponent::Move()
+{
+	FVector input = FVector(_inputInfo.GetThumbstickLeft(), 0);
+	AddInputVector(input);
+}
+
+void UPlayerCharacterMovementComponent::MoveAnimation()
+{
+	float velocityScale = Velocity.Length() / GetMaxSpeed();
+	UE_LOG(LogTemp, Warning, TEXT("Velocity %f"), Velocity.Length());
+	UE_LOG(LogTemp, Warning, TEXT("MaxSpeed %f"), GetMaxSpeed());
+	UE_LOG(LogTemp, Warning, TEXT("velocityScale %f"), velocityScale);
+	_anim->_velocityScale = velocityScale;
 }
 
 void UPlayerCharacterMovementComponent::Configure(UPlayerAnimInstance* anim)
@@ -28,8 +46,7 @@ void UPlayerCharacterMovementComponent::MoveHorizontal(float input)
 	if (input != 0)
 		UE_LOG(LogTemp, Warning, TEXT("MoveHorizontal %f"), input);
 
-	_inputInfo.SetThumbstickLeftX(input);
-	//_anim->_horizontalInput = input;
+	_inputInfo.SetThumbstickLeftY(input);
 }
 
 
@@ -38,6 +55,5 @@ void UPlayerCharacterMovementComponent::MoveVertical(float input)
 	if (input != 0)
 		UE_LOG(LogTemp, Warning, TEXT("MoveVertical %f"), input);
 
-	_inputInfo.SetThumbstickLeftY(input);
-	//_anim->_verticalInput = input;
+	_inputInfo.SetThumbstickLeftX(input);
 }

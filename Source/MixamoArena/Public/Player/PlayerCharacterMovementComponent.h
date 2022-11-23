@@ -48,6 +48,12 @@ private:
 	UPROPERTY()
 	FInputInfo _inputInfo;
 
+	UPROPERTY(EditAnywhere)
+	float PlayerRegularMaxSpeed;
+
+	void Move();
+	void MoveAnimation();
+
 protected:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

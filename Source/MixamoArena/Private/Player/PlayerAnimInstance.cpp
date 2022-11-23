@@ -5,7 +5,7 @@
 
 
 
-bool UPlayerAnimInstance::IsMovingFoward()
+bool UPlayerAnimInstance::IsMoving()
 {
-	return _verticalInput > 0;
+	return _velocityScale > 0;
 }
