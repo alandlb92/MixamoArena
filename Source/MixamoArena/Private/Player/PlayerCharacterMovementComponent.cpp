@@ -30,9 +30,9 @@ void UPlayerCharacterMovementComponent::Move()
 void UPlayerCharacterMovementComponent::MoveAnimation()
 {
 	float velocityScale = Velocity.Length() / GetMaxSpeed();
-	UE_LOG(LogTemp, Warning, TEXT("Velocity %f"), Velocity.Length());
-	UE_LOG(LogTemp, Warning, TEXT("MaxSpeed %f"), GetMaxSpeed());
-	UE_LOG(LogTemp, Warning, TEXT("velocityScale %f"), velocityScale);
+	//UE_LOG(LogTemp, Warning, TEXT("Velocity %f"), Velocity.Length());
+	//UE_LOG(LogTemp, Warning, TEXT("MaxSpeed %f"), GetMaxSpeed());
+	//UE_LOG(LogTemp, Warning, TEXT("velocityScale %f"), velocityScale);
 	_anim->_velocityScale = velocityScale;
 }
 

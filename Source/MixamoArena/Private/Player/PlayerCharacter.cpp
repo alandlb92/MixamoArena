@@ -5,12 +5,13 @@
 #include "Player/PlayerAnimInstance.h"
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
+#include "Player/PlayerCameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Player/PlayerCharacterMovementComponent.h"
 
 // Sets default values
-APlayerCharacter::APlayerCharacter()
+APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UPlayerCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -29,7 +30,7 @@ APlayerCharacter::APlayerCharacter()
 	_springArm->bInheritYaw = false;
 	_springArm->bInheritRoll = false;
 
-	_camera = CreateAbstractDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	_camera = CreateAbstractDefaultSubobject<UPlayerCameraComponent>(TEXT("Camera"));
 	_camera->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
 	_camera->SetupAttachment(_springArm, USpringArmComponent::SocketName);
 
@@ -41,9 +42,6 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	_movementComponent = Cast<UPlayerCharacterMovementComponent>(GetMovementComponent());
-	if (_movementComponent == nullptr)
-		UE_LOG(LogTemp, Warning, TEXT("_movementComponent == nullptr begin play"));
-
 	_movementComponent->Configure(Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance()));
 	SetupGameplayInput();
 }
@@ -54,6 +52,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -61,9 +60,27 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 void APlayerCharacter::SetupGameplayInput()
-{	
-	InputComponent->BindAxis("Move_Horizontal", _movementComponent, &UPlayerCharacterMovementComponent::MoveHorizontal);
-	InputComponent->BindAxis("Move_Vertical", _movementComponent, &UPlayerCharacterMovementComponent::MoveVertical);
+{
+	if (_movementComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("_movementComponent == nullptr begin play"));
+	}
+	else
+	{
+		InputComponent->BindAxis("Thumb_Left_Move_Horizontal", _movementComponent, &UPlayerCharacterMovementComponent::MoveHorizontal);
+		InputComponent->BindAxis("Thumb_Left_Move_Vertical", _movementComponent, &UPlayerCharacterMovementComponent::MoveVertical);
+	}
+
+	if (_camera == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("_camera == nullptr begin play"));
+	}
+	else
+	{
+		InputComponent->BindAxis("Thumb_Right_Move_Horizontal", _camera, &UPlayerCameraComponent::MoveCameraHorizontal);
+		InputComponent->BindAxis("Thumb_Right_Move_Vertical", _camera, &UPlayerCameraComponent::MoveCameraVertical);
+	}
+
 	InputComponent->BindAction("Test", EInputEvent::IE_Pressed, this, &APlayerCharacter::Test);
 }
 

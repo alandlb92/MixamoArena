@@ -13,7 +13,7 @@ class MIXAMOARENA_API APlayerCharacter : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	APlayerCharacter();
+	APlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,7 +32,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	class USpringArmComponent* _springArm;
 	UPROPERTY(EditAnywhere)
-	class UCameraComponent* _camera;
+	class UPlayerCameraComponent* _camera;
 
 	void SetupGameplayInput();
 	void Test();
