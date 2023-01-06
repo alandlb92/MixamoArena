@@ -18,12 +18,12 @@ void UPlayerCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTic
 	Move();
 	MoveAnimation();
 
-	_inputInfo.Clean();
+	_axisInfo.Clean();
 }
 
 void UPlayerCharacterMovementComponent::Move()
 {
-	FVector input = FVector(_inputInfo.GetThumbstickLeft(), 0);
+	FVector input = FVector(_axisInfo.GetAxis(), 0);
 	AddInputVector(input);
 }
 
@@ -46,7 +46,7 @@ void UPlayerCharacterMovementComponent::MoveHorizontal(float input)
 	if (input != 0)
 		UE_LOG(LogTemp, Warning, TEXT("MoveHorizontal %f"), input);
 
-	_inputInfo.SetThumbstickLeftY(input);
+	_axisInfo.SetAxisY(input);
 }
 
 
@@ -55,5 +55,5 @@ void UPlayerCharacterMovementComponent::MoveVertical(float input)
 	if (input != 0)
 		UE_LOG(LogTemp, Warning, TEXT("MoveVertical %f"), input);
 
-	_inputInfo.SetThumbstickLeftX(input);
+	_axisInfo.SetAxisX(input);
 }

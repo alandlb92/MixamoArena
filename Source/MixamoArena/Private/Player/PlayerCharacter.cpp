@@ -43,6 +43,9 @@ void APlayerCharacter::BeginPlay()
 
 	_movementComponent = Cast<UPlayerCharacterMovementComponent>(GetMovementComponent());
 	_movementComponent->Configure(Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance()));
+
+	_camera->Configure(_springArm);
+
 	SetupGameplayInput();
 }
 
