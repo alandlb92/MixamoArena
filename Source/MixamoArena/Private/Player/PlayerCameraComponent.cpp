@@ -57,3 +57,8 @@ void UPlayerCameraComponent::MoveCameraVertical(float input)
 
 	_axisInfo.SetAxisY(input);
 }
+
+USpringArmComponent* UPlayerCameraComponent::GetSpringArm()
+{
+	return _springArm;
+}

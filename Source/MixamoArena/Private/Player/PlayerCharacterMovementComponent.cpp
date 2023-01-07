@@ -2,7 +2,16 @@
 
 
 #include "Player/PlayerCharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Player/PlayerCameraComponent.h"
+#include "GameFramework/Character.h"
 #include "Player/PlayerAnimInstance.h"
+
+void UPlayerCharacterMovementComponent::Configure(UPlayerAnimInstance* anim, UPlayerCameraComponent* camera)
+{
+	_anim = anim;
+	_camera = camera;
+}
 
 void UPlayerCharacterMovementComponent::BeginPlay()
 {
@@ -15,16 +24,64 @@ void UPlayerCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTic
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	AdjustPlayerRotation(DeltaTime);
 	Move();
 	MoveAnimation();
 
 	_axisInfo.Clean();
 }
 
+void UPlayerCharacterMovementComponent::AdjustPlayerRotation(float DeltaTime)
+{
+	if (_axisInfo.IsMoving())
+	{
+		FVector input = FVector(_axisInfo.GetAxis(), 0);
+		input = _camera->GetSpringArm()->GetRelativeRotation().RotateVector(input);
+
+		FRotator currentActorRotator = GetCharacterOwner()->GetActorRotation();
+		FRotator desiredRotation = FVector(input).Rotation();
+
+		float currentYawClamped = FRotator::ClampAxis(currentActorRotator.Yaw);
+		float desiredYawClamped = FRotator::ClampAxis(desiredRotation.Yaw);
+
+
+
+		_rotationIsSet = FMath::IsNearlyEqual(currentYawClamped, desiredYawClamped, 5);
+
+		UE_LOG(LogTemp, Warning, TEXT("Current yaw: %f Desired yaw: %f"), currentActorRotator.Yaw, desiredRotation.Yaw);
+		UE_LOG(LogTemp, Warning, TEXT("currentYawClamped: %f desiredYawClamped: %f"), currentYawClamped, desiredYawClamped);
+
+		if (!_rotationIsSet)
+		{
+			//Discover the right side
+			float	a = FRotator::ClampAxis(currentYawClamped - desiredYawClamped);
+			float b = currentYawClamped + desiredYawClamped;
+			float cof = b <= a ? 1 : -1;
+
+
+			FRotator resultRot = currentActorRotator;
+			resultRot.Add(0, RotationRate.Yaw * DeltaTime * cof, 0);
+			GetCharacterOwner()->SetActorRotation(resultRot);
+		}
+		else
+		{
+			FRotator resultRot = currentActorRotator;
+			resultRot.Yaw = desiredRotation.Yaw;
+			GetCharacterOwner()->SetActorRotation(resultRot);
+		}
+	}
+
+
+}
+
 void UPlayerCharacterMovementComponent::Move()
 {
-	FVector input = FVector(_axisInfo.GetAxis(), 0);
-	AddInputVector(input);
+	if (_rotationIsSet)
+	{
+		FVector input = FVector(_axisInfo.GetAxis(), 0);
+		input = _camera->GetSpringArm()->GetRelativeRotation().RotateVector(input);
+		AddInputVector(input);
+	}
 }
 
 void UPlayerCharacterMovementComponent::MoveAnimation()
@@ -36,10 +93,6 @@ void UPlayerCharacterMovementComponent::MoveAnimation()
 	_anim->_velocityScale = velocityScale;
 }
 
-void UPlayerCharacterMovementComponent::Configure(UPlayerAnimInstance* anim)
-{
-	_anim = anim;
-}
 
 void UPlayerCharacterMovementComponent::MoveHorizontal(float input)
 {

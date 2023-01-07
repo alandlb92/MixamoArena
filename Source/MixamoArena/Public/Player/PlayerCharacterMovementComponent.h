@@ -17,8 +17,16 @@ class MIXAMOARENA_API UPlayerCharacterMovementComponent : public UCharacterMovem
 private:
 	UPROPERTY()
 	class UPlayerAnimInstance* _anim;
+
+	UPROPERTY()
+	class UPlayerCameraComponent* _camera;
+
 	UPROPERTY()
 	FAxisInfo _axisInfo;
+
+
+	UPROPERTY()
+	bool _rotationIsSet;
 
 	UPROPERTY(EditAnywhere)
 	float PlayerRegularMaxSpeed;
@@ -31,7 +39,8 @@ protected:
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	void Configure(UPlayerAnimInstance* anim);
+	void Configure(UPlayerAnimInstance* anim, UPlayerCameraComponent* camera);
+	void AdjustPlayerRotation(float DeltaTime);
 	void MoveHorizontal(float input);
 	void MoveVertical(float input);
 };

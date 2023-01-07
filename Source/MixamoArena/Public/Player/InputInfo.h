@@ -18,6 +18,11 @@ private:
 	float _axisY;
 
 public:
+	bool IsMoving()
+	{
+		return _axisX != 0 || _axisY != 0;
+	}
+
 	void Clean()
 	{
 		_axisX = 0;

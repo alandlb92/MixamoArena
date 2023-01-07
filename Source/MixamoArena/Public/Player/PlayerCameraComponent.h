@@ -22,16 +22,17 @@ private:
 	void MoveCamera(float DeltaTime); 
 	
 	UPROPERTY(EditAnywhere)
-	float _maxCameraRotationSpeed = 10;
+	float _maxCameraRotationSpeed = 100;
 
 protected:
+	UPlayerCameraComponent();
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	UPlayerCameraComponent();
 	void Configure(USpringArmComponent* springArm);
 	void MoveCameraHorizontal(float input);
 	void MoveCameraVertical(float input);
+	USpringArmComponent* GetSpringArm();
 	
 };

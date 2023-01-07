@@ -42,7 +42,7 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	_movementComponent = Cast<UPlayerCharacterMovementComponent>(GetMovementComponent());
-	_movementComponent->Configure(Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance()));
+	_movementComponent->Configure(Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance()), _camera);
 
 	_camera->Configure(_springArm);
 
