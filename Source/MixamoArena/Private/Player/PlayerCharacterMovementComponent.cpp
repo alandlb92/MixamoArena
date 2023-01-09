@@ -46,21 +46,23 @@ void UPlayerCharacterMovementComponent::AdjustPlayerRotation(float DeltaTime)
 
 
 
-		_rotationIsSet = FMath::IsNearlyEqual(currentYawClamped, desiredYawClamped, 5);
+		_rotationIsSet = FMath::IsNearlyEqual(currentYawClamped, desiredYawClamped, 5 * 3);
 
-		UE_LOG(LogTemp, Warning, TEXT("Current yaw: %f Desired yaw: %f"), currentActorRotator.Yaw, desiredRotation.Yaw);
-		UE_LOG(LogTemp, Warning, TEXT("currentYawClamped: %f desiredYawClamped: %f"), currentYawClamped, desiredYawClamped);
+		//UE_LOG(LogTemp, Warning, TEXT("Current yaw: %f Desired yaw: %f"), currentActorRotator.Yaw, desiredRotation.Yaw);
+		float currentSum = currentYawClamped + 360;
+		float distanceRight = 360 - (currentSum - desiredYawClamped);
+		distanceRight = distanceRight < 0 ? 360 + distanceRight : distanceRight;
+		float distanceLeft = 360 - distanceRight;
 
-		if (!_rotationIsSet)
+		UE_LOG(LogTemp, Warning, TEXT("distanceRight: %f, distanceLeft: %f"), distanceRight, distanceLeft);
+
+
+		if (!_rotationIsSet && !IsMovingOnGround())
 		{
 			//Discover the right side
-			float	a = FRotator::ClampAxis(currentYawClamped - desiredYawClamped);
-			float b = currentYawClamped + desiredYawClamped;
-			float cof = b <= a ? 1 : -1;
-
-
+			float cof = distanceRight > 180 ? -1 : 1;
 			FRotator resultRot = currentActorRotator;
-			resultRot.Add(0, RotationRate.Yaw * DeltaTime * cof, 0);
+			resultRot.Add(0, RotationRate.Yaw * 3 * DeltaTime * cof, 0);
 			GetCharacterOwner()->SetActorRotation(resultRot);
 		}
 		else
