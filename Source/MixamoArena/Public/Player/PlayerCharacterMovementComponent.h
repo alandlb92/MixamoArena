@@ -24,9 +24,14 @@ private:
 	UPROPERTY()
 	FAxisInfo _axisInfo;
 
+	const float MAX_ANGLE = 360;
+	const float MIN_ANGLE_TO_ROTATE_FIRST = 15;
 
 	UPROPERTY()
 	bool _rotationIsSet;
+
+	UPROPERTY()
+	FRotator _lastDesireRotation;
 
 	UPROPERTY(EditAnywhere)
 	float PlayerRegularMaxSpeed;
@@ -43,4 +48,9 @@ public:
 	void AdjustPlayerRotation(float DeltaTime);
 	void MoveHorizontal(float input);
 	void MoveVertical(float input);
+
+	bool IsMoving() const;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		float _rotateAdjustVelocity = 1000;
 };

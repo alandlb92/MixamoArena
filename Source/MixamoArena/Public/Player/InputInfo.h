@@ -18,7 +18,7 @@ private:
 	float _axisY;
 
 public:
-	bool IsMoving()
+	bool IsInUse()
 	{
 		return _axisX != 0 || _axisY != 0;
 	}

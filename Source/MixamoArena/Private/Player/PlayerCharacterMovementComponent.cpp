@@ -33,47 +33,36 @@ void UPlayerCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTic
 
 void UPlayerCharacterMovementComponent::AdjustPlayerRotation(float DeltaTime)
 {
-	if (_axisInfo.IsMoving())
+	if (_axisInfo.IsInUse())
 	{
 		FVector input = FVector(_axisInfo.GetAxis(), 0);
 		input = _camera->GetSpringArm()->GetRelativeRotation().RotateVector(input);
-
-		FRotator currentActorRotator = GetCharacterOwner()->GetActorRotation();
-		FRotator desiredRotation = FVector(input).Rotation();
-
-		float currentYawClamped = FRotator::ClampAxis(currentActorRotator.Yaw);
-		float desiredYawClamped = FRotator::ClampAxis(desiredRotation.Yaw);
-
-
-
-		_rotationIsSet = FMath::IsNearlyEqual(currentYawClamped, desiredYawClamped, 5 * 3);
-
-		//UE_LOG(LogTemp, Warning, TEXT("Current yaw: %f Desired yaw: %f"), currentActorRotator.Yaw, desiredRotation.Yaw);
-		float currentSum = currentYawClamped + 360;
-		float distanceRight = 360 - (currentSum - desiredYawClamped);
-		distanceRight = distanceRight < 0 ? 360 + distanceRight : distanceRight;
-		float distanceLeft = 360 - distanceRight;
-
-		UE_LOG(LogTemp, Warning, TEXT("distanceRight: %f, distanceLeft: %f"), distanceRight, distanceLeft);
-
-
-		if (!_rotationIsSet && !IsMovingOnGround())
-		{
-			//Discover the right side
-			float cof = distanceRight > 180 ? -1 : 1;
-			FRotator resultRot = currentActorRotator;
-			resultRot.Add(0, RotationRate.Yaw * 3 * DeltaTime * cof, 0);
-			GetCharacterOwner()->SetActorRotation(resultRot);
-		}
-		else
-		{
-			FRotator resultRot = currentActorRotator;
-			resultRot.Yaw = desiredRotation.Yaw;
-			GetCharacterOwner()->SetActorRotation(resultRot);
-		}
+		_lastDesireRotation = FVector(input).Rotation();
 	}
 
+	FRotator currentActorRotator = GetCharacterOwner()->GetActorRotation();
+	float currentYawClamped = FRotator::ClampAxis(currentActorRotator.Yaw);
+	float desiredYawClamped = FRotator::ClampAxis(_lastDesireRotation.Yaw);
 
+	float currentSum = currentYawClamped + MAX_ANGLE;
+	float distanceRight = MAX_ANGLE - (currentSum - desiredYawClamped);
+	distanceRight = distanceRight < 0 ? MAX_ANGLE + distanceRight : distanceRight;
+	float distanceLeft = MAX_ANGLE - distanceRight;
+
+	_rotationIsSet = distanceLeft < _rotateAdjustVelocity/100 || distanceRight < _rotateAdjustVelocity / 100;
+
+	if (!_rotationIsSet)
+	{
+		float sideToRotate = distanceRight > MAX_ANGLE / 2 ? -1 : 1;
+		FRotator toadd = FRotator(0, _rotateAdjustVelocity * DeltaTime * sideToRotate, 0);
+		GetCharacterOwner()->AddActorLocalRotation(toadd);
+	}
+	else if (_axisInfo.IsInUse())
+	{
+		FRotator resultRot = currentActorRotator;
+		resultRot.Yaw = _lastDesireRotation.Yaw;
+		GetCharacterOwner()->SetActorRotation(resultRot);
+	}
 }
 
 void UPlayerCharacterMovementComponent::Move()
@@ -102,6 +91,7 @@ void UPlayerCharacterMovementComponent::MoveHorizontal(float input)
 		UE_LOG(LogTemp, Warning, TEXT("MoveHorizontal %f"), input);
 
 	_axisInfo.SetAxisY(input);
+
 }
 
 
@@ -111,4 +101,9 @@ void UPlayerCharacterMovementComponent::MoveVertical(float input)
 		UE_LOG(LogTemp, Warning, TEXT("MoveVertical %f"), input);
 
 	_axisInfo.SetAxisX(input);
+}
+
+bool UPlayerCharacterMovementComponent::IsMoving() const
+{
+	return Velocity.X != 0 && Velocity.Y != 0 && Velocity.Z != 0;
 }
