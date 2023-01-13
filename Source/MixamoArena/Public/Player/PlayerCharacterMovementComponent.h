@@ -15,6 +15,7 @@ class MIXAMOARENA_API UPlayerCharacterMovementComponent : public UCharacterMovem
 	GENERATED_BODY()
 
 private:
+	UPlayerCharacterMovementComponent();
 	UPROPERTY()
 	class UPlayerAnimInstance* _anim;
 
@@ -48,7 +49,7 @@ public:
 	void AdjustPlayerRotation(float DeltaTime);
 	void MoveHorizontal(float input);
 	void MoveVertical(float input);
-
+	void Jump();
 	bool IsMoving() const;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

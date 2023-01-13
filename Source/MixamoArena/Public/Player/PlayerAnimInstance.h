@@ -23,6 +23,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
 	float _velocityScale;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
+	float _zVelocity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
+	bool _jumping;
+
 	UFUNCTION(BlueprintCallable)
 	bool IsMoving();
 };

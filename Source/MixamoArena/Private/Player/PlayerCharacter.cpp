@@ -72,6 +72,7 @@ void APlayerCharacter::SetupGameplayInput()
 	{
 		InputComponent->BindAxis("Thumb_Left_Move_Horizontal", _movementComponent, &UPlayerCharacterMovementComponent::MoveHorizontal);
 		InputComponent->BindAxis("Thumb_Left_Move_Vertical", _movementComponent, &UPlayerCharacterMovementComponent::MoveVertical);
+		InputComponent->BindAction("Submit", IE_Pressed, _movementComponent, &UPlayerCharacterMovementComponent::Jump);
 	}
 
 	if (_camera == nullptr)

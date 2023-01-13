@@ -7,6 +7,11 @@
 #include "GameFramework/Character.h"
 #include "Player/PlayerAnimInstance.h"
 
+UPlayerCharacterMovementComponent::UPlayerCharacterMovementComponent()
+{
+	bOrientRotationToMovement = false;
+}
+
 void UPlayerCharacterMovementComponent::Configure(UPlayerAnimInstance* anim, UPlayerCameraComponent* camera)
 {
 	_anim = anim;
@@ -16,8 +21,6 @@ void UPlayerCharacterMovementComponent::Configure(UPlayerAnimInstance* anim, UPl
 void UPlayerCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	bOrientRotationToMovement = true;
 }
 
 void UPlayerCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -26,13 +29,16 @@ void UPlayerCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTic
 
 	AdjustPlayerRotation(DeltaTime);
 	Move();
-	MoveAnimation();
+	MoveAnimation();	
 
 	_axisInfo.Clean();
 }
 
 void UPlayerCharacterMovementComponent::AdjustPlayerRotation(float DeltaTime)
 {
+	if (!IsMovingOnGround())
+		return;
+
 	if (_axisInfo.IsInUse())
 	{
 		FVector input = FVector(_axisInfo.GetAxis(), 0);
@@ -49,7 +55,7 @@ void UPlayerCharacterMovementComponent::AdjustPlayerRotation(float DeltaTime)
 	distanceRight = distanceRight < 0 ? MAX_ANGLE + distanceRight : distanceRight;
 	float distanceLeft = MAX_ANGLE - distanceRight;
 
-	_rotationIsSet = distanceLeft < _rotateAdjustVelocity/100 || distanceRight < _rotateAdjustVelocity / 100;
+	_rotationIsSet = distanceLeft < _rotateAdjustVelocity / 100 || distanceRight < _rotateAdjustVelocity / 100;
 
 	if (!_rotationIsSet)
 	{
@@ -67,21 +73,21 @@ void UPlayerCharacterMovementComponent::AdjustPlayerRotation(float DeltaTime)
 
 void UPlayerCharacterMovementComponent::Move()
 {
-	if (_rotationIsSet)
-	{
-		FVector input = FVector(_axisInfo.GetAxis(), 0);
-		input = _camera->GetSpringArm()->GetRelativeRotation().RotateVector(input);
-		AddInputVector(input);
-	}
+	if (!_rotationIsSet)
+		return;
+
+	FVector input = FVector(_axisInfo.GetAxis(), 0);
+	input = _camera->GetSpringArm()->GetRelativeRotation().RotateVector(input);
+	AddInputVector(input);
+
 }
 
 void UPlayerCharacterMovementComponent::MoveAnimation()
 {
 	float velocityScale = Velocity.Length() / GetMaxSpeed();
-	//UE_LOG(LogTemp, Warning, TEXT("Velocity %f"), Velocity.Length());
-	//UE_LOG(LogTemp, Warning, TEXT("MaxSpeed %f"), GetMaxSpeed());
-	//UE_LOG(LogTemp, Warning, TEXT("velocityScale %f"), velocityScale);
 	_anim->_velocityScale = velocityScale;
+	_anim->_zVelocity = Velocity.Z;
+	_anim->_jumping = !IsMovingOnGround();
 }
 
 
@@ -94,13 +100,20 @@ void UPlayerCharacterMovementComponent::MoveHorizontal(float input)
 
 }
 
-
 void UPlayerCharacterMovementComponent::MoveVertical(float input)
 {
 	if (input != 0)
 		UE_LOG(LogTemp, Warning, TEXT("MoveVertical %f"), input);
 
 	_axisInfo.SetAxisX(input);
+}
+
+void UPlayerCharacterMovementComponent::Jump()
+{
+	if (!_rotationIsSet)
+		return;
+
+	DoJump(false);
 }
 
 bool UPlayerCharacterMovementComponent::IsMoving() const
