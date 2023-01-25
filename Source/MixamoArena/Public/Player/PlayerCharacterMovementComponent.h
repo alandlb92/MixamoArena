@@ -26,7 +26,7 @@ private:
 	FAxisInfo _axisInfo;
 
 	const float MAX_ANGLE = 360;
-	const float MIN_ANGLE_TO_ROTATE_FIRST = 15;
+	const float MIN_ANGLE_TO_ROTATE_FIRST = 20;
 
 	UPROPERTY()
 	bool _rotationIsSet;
@@ -50,8 +50,9 @@ public:
 	void MoveHorizontal(float input);
 	void MoveVertical(float input);
 	void Jump();
+
 	bool IsMoving() const;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		float _rotateAdjustVelocity = 1000;
+	float _rotateAdjustVelocity = 1000;
 };

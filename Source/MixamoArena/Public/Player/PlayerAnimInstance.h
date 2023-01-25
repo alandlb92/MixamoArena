@@ -19,16 +19,30 @@ public:
 	float _horizontalInput;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
 	float _verticalInput;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
+	float _lastVelocityScale;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
 	float _velocityScale;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
+	float _maxVelocity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
+	float _xVelocity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
+	float _yVelocity;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
 	float _zVelocity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
-	bool _jumping;
+	bool _movingInGround;
 
-	UFUNCTION(BlueprintCallable)
-	bool IsMoving();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Animation Variables")
+	bool _rightLegInFront;
+
+	virtual void NativeUpdateAnimation(float DeltaTimeX) override;
 };

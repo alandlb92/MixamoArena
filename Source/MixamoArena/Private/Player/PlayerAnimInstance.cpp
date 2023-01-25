@@ -4,8 +4,15 @@
 #include "Player/PlayerAnimInstance.h"
 
 
-
-bool UPlayerAnimInstance::IsMoving()
+void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaTimeX)
 {
-	return _velocityScale > 0;
+    Super::NativeUpdateAnimation(DeltaTimeX);
+
+    FVector rightFoot = GetSkelMeshComponent()->GetBoneLocation(FName("RightFoot"), EBoneSpaces::ComponentSpace);
+    FVector leftFoot = GetSkelMeshComponent()->GetBoneLocation(FName("LeftFoot"), EBoneSpaces::ComponentSpace);
+    _lastVelocityScale = _velocityScale;
+    _velocityScale = FVector(_xVelocity, _yVelocity, _zVelocity).Length() / _maxVelocity;
+    _rightLegInFront = rightFoot.Y > leftFoot.Y;
+
+    UE_LOG(LogTemp, Warning, TEXT("VelocityScale: %f") , _velocityScale);
 }

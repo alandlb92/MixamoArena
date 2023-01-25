@@ -28,7 +28,7 @@ void UPlayerCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	AdjustPlayerRotation(DeltaTime);
-	Move();
+	Move();	
 	MoveAnimation();	
 
 	_axisInfo.Clean();
@@ -84,10 +84,11 @@ void UPlayerCharacterMovementComponent::Move()
 
 void UPlayerCharacterMovementComponent::MoveAnimation()
 {
-	float velocityScale = Velocity.Length() / GetMaxSpeed();
-	_anim->_velocityScale = velocityScale;
+	_anim->_maxVelocity = GetMaxSpeed();
+	_anim->_xVelocity = Velocity.X;
+	_anim->_yVelocity = Velocity.Y;
 	_anim->_zVelocity = Velocity.Z;
-	_anim->_jumping = !IsMovingOnGround();
+	_anim->_movingInGround = IsMovingOnGround();
 }
 
 
@@ -110,7 +111,7 @@ void UPlayerCharacterMovementComponent::MoveVertical(float input)
 
 void UPlayerCharacterMovementComponent::Jump()
 {
-	if (!_rotationIsSet)
+	if (!_rotationIsSet || !IsMovingOnGround())
 		return;
 
 	DoJump(false);
