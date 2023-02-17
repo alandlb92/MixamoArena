@@ -6,6 +6,7 @@
 #include "Player/PlayerCameraComponent.h"
 #include "GameFramework/Character.h"
 #include "Player/PlayerAnimInstance.h"
+#include "Kismet/KismetMathLibrary.h"
 
 UPlayerCharacterMovementComponent::UPlayerCharacterMovementComponent()
 {
@@ -28,18 +29,21 @@ void UPlayerCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	AdjustPlayerRotation(DeltaTime);
-	Move();	
-	MoveAnimation();	
+	Move();
+	MoveAnimation();
 
 	_axisInfo.Clean();
 }
 
 void UPlayerCharacterMovementComponent::AdjustPlayerRotation(float DeltaTime)
 {
-	if (!IsMovingOnGround())
+	if (!IsMovingOnGround())//when jumping cant adjust rotation
+	{
+		UE_LOG(LogTemp, Warning, TEXT("not MOVING ON GROUND"));
 		return;
+	}
 
-	if (_axisInfo.IsInUse())
+	if (_axisInfo.IsInUse() && _axisInfo.LenghtGreaterThan(.05f))
 	{
 		FVector input = FVector(_axisInfo.GetAxis(), 0);
 		input = _camera->GetSpringArm()->GetRelativeRotation().RotateVector(input);
@@ -55,19 +59,44 @@ void UPlayerCharacterMovementComponent::AdjustPlayerRotation(float DeltaTime)
 	distanceRight = distanceRight < 0 ? MAX_ANGLE + distanceRight : distanceRight;
 	float distanceLeft = MAX_ANGLE - distanceRight;
 
-	_rotationIsSet = distanceLeft < _rotateAdjustVelocity / 100 || distanceRight < _rotateAdjustVelocity / 100;
+	_rotationIsSet = UKismetMathLibrary::InRange_FloatFloat(currentActorRotator.Yaw
+		, _lastDesireRotation.Yaw - MIN_ANGLE_TO_ROTATE_FIRST
+		, _lastDesireRotation.Yaw + MIN_ANGLE_TO_ROTATE_FIRST);
 
-	if (!_rotationIsSet)
+	float sideToRotate = distanceRight > MAX_ANGLE / 2 ? -1 : 1;
+
+	bool isNextStepGreaterThenNecessary = false;
+	float toAdd = _rotateAdjustVelocity * DeltaTime * sideToRotate;
+
+	if (sideToRotate > 0)
 	{
-		float sideToRotate = distanceRight > MAX_ANGLE / 2 ? -1 : 1;
-		FRotator toadd = FRotator(0, _rotateAdjustVelocity * DeltaTime * sideToRotate, 0);
-		GetCharacterOwner()->AddActorLocalRotation(toadd);
+		isNextStepGreaterThenNecessary = currentYawClamped > desiredYawClamped + toAdd;
+
+		UE_LOG(LogTemp, Warning, TEXT("isNextStepGreaterThenNecessary: %s, currentYawClamped: %f, desiredYawClamped: %f, toAdd: %f"),
+			isNextStepGreaterThenNecessary ? TEXT("true") : TEXT("false"), currentYawClamped, desiredYawClamped, toAdd);
 	}
-	else if (_axisInfo.IsInUse())
+	else if(sideToRotate < 0)
 	{
+		isNextStepGreaterThenNecessary = currentYawClamped < desiredYawClamped + toAdd;
+		UE_LOG(LogTemp, Warning, TEXT("isNextStepGreaterThenNecessary: %s, currentYawClamped: %f, desiredYawClamped: %f, toAdd: %f"),
+			isNextStepGreaterThenNecessary ? TEXT("true") : TEXT("false"), currentYawClamped, desiredYawClamped, toAdd);
+	}
+
+
+
+
+	if (_rotationIsSet || isNextStepGreaterThenNecessary)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SET"));
 		FRotator resultRot = currentActorRotator;
 		resultRot.Yaw = _lastDesireRotation.Yaw;
 		GetCharacterOwner()->SetActorRotation(resultRot);
+	}
+	else
+	{
+
+		FRotator toadd = FRotator(0, toAdd, 0);
+		GetCharacterOwner()->AddActorLocalRotation(toadd);
 	}
 }
 
@@ -94,18 +123,11 @@ void UPlayerCharacterMovementComponent::MoveAnimation()
 
 void UPlayerCharacterMovementComponent::MoveHorizontal(float input)
 {
-	if (input != 0)
-		UE_LOG(LogTemp, Warning, TEXT("MoveHorizontal %f"), input);
-
 	_axisInfo.SetAxisY(input);
-
 }
 
 void UPlayerCharacterMovementComponent::MoveVertical(float input)
 {
-	if (input != 0)
-		UE_LOG(LogTemp, Warning, TEXT("MoveVertical %f"), input);
-
 	_axisInfo.SetAxisX(input);
 }
 

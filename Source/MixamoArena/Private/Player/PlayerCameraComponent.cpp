@@ -35,9 +35,8 @@ void UPlayerCameraComponent::MoveCamera(float DeltaTime)
 	{
 		FVector2D inputResult = _axisInfo.GetAxis() * _maxCameraRotationSpeed * DeltaTime;
 		FRotator rotationToAdd = FRotator(inputResult.Y, inputResult.X, 0);
-
-
 		FRotator newRotation = _springArm->GetRelativeRotation() + FRotator(rotationToAdd);
+		newRotation.Pitch = FMath::Clamp(newRotation.Pitch, -85, 85);
 		_springArm->SetRelativeRotation(newRotation);
 	}
 }
